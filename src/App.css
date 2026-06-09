@@ -1,0 +1,59 @@
+#root {
+  min-height: 100vh;
+}
+
+.logo {
+  height: 5em;
+  transition: all .3s ease;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 18px rgba(16,185,129,.45));
+  transform: translateY(-2px);
+}
+
+@keyframes logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* GLOBAL FIX: asegurar altura y fondo consistente */
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, sans-serif;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+.container::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at top,
+    rgba(16,185,129,0.08),
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
