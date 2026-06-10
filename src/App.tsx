@@ -6,7 +6,6 @@ import Auth from './Auth.tsx'
 import Home from './mainPage.tsx'
 import Header from './Header.tsx'
 import Profile from './Profile.tsx'
-import BlockExplorer from './blockchain/BlockExplorer'
 import ElectionDetail from './ElectionDetail.tsx'
 
 type AppUser = {
@@ -57,7 +56,6 @@ function App() {
             />
 
             <Route path="/profile" element={<><Header user={user} /><Profile /></>} />
-            <Route path="/explorer" element={<><Header user={user} /><BlockExplorer /></>} />
             <Route path="/election/:id" element={<><Header user={user} /><ElectionDetail /></>} />
           </>
         )}
