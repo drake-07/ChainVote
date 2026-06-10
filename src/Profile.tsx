@@ -161,7 +161,7 @@ export default function Profile() {
             </span>
           </div>
 
-          {/* AVATAR INTERACTIVO A LA IZQUIERDA (Sin texto que lo manche) */}
+          
           <div 
             className="profile-avatar profile-avatar-left" 
             onClick={() => !uploading && fileInputRef.current?.click()}
@@ -269,7 +269,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* TARJETA CENTRADA: MIS TRANSACCIONES (Auditoría Criptográfica Web3) */}
+      {/* MIS TRANSACCIONES (Auditoría Criptográfica Web3) */}
       <div className="transactions-card" style={{ 
         backgroundColor: '#111827', 
         border: '1px solid #1f2937', 
@@ -346,7 +346,7 @@ export default function Profile() {
         )}
       </div>
 
-      {/* BOTÓN CENTRAL: Posicionado limpiamente debajo del flujo de las tarjetas */}
+      
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px', width: '100%' }}>
         <button className="back-button" onClick={() => navigate('/')} aria-label="Volver" style={{ position: 'static', transform: 'none' }}>
           ←

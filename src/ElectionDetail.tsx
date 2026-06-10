@@ -51,7 +51,7 @@ export default function ElectionDetail() {
   const loadElectionData = async (userId: string | null) => {
     if (!id) return
     try {
-      // 🟢 CONSUMO DE REPOSITORIO: Carga estructurada de datos Web2
+      
       const repoData = await ElectionRepository.getSingleElectionDetails(id, userId)
       
       setElection(repoData.election)
@@ -67,7 +67,6 @@ export default function ElectionDetail() {
         setUserStatus('none')
       }
 
-      // 🟢 CONSUMO DE REPOSITORIO: Carga de resultados Web3
       if ((repoData.election.status === 'reveal' || repoData.election.status === 'finished') && repoData.election.chain_election_id !== undefined) {
         const blockchainResults = await ElectionRepository.getBlockchainResults(repoData.election.chain_election_id)
         setResults(blockchainResults)
@@ -77,9 +76,7 @@ export default function ElectionDetail() {
     }
   }
 
-  // =====================================
-  // 👥 GESTIÓN DE CENSO (Delegado al Repo)
-  // =====================================
+
   const handleRequestCensus = async () => {
     if (!currentUserId || !election) return
     try {
@@ -101,9 +98,7 @@ export default function ElectionDetail() {
     }
   }
 
-  // =====================================
-  // 🔐 FLUJO CRIPTOGRÁFICO (Delegado al Repo)
-  // =====================================
+
   const handleVote = async () => {
     if (!election || hasVoted || election.status !== 'active' || userStatus !== 'approved' || !currentUserId) return
     if (!selectedOptionId) { alert('Selecciona una opción'); return; }
@@ -113,7 +108,7 @@ export default function ElectionDetail() {
 
     setIsVoting(true)
     try {
-      // 🟢 Ocultamos toda la lógica de ethers.js, Keccak256 y Web3 en el repositorio
+      
       const voteResult = await ElectionRepository.submitCommitVote(election.id, election.chain_election_id!, currentUserId, optionIndex)
       
       setHasVoted(true)
@@ -132,7 +127,6 @@ export default function ElectionDetail() {
           window.open(`https://sepolia.etherscan.io/tx/${txHash}`, '_blank', 'noopener,noreferrer');
         }
       } else {
-        // Por si acaso el repositorio no devolviera hash, dejamos el alert clásico de seguridad
         alert('✅ ¡Voto registrado en la Blockchain!!');
       }
     } catch (err) {
@@ -147,7 +141,6 @@ export default function ElectionDetail() {
     if (!election || !userSalt || savedOptionIndex === null || !currentUserId) return
     setIsRevealing(true)
     try {
-      // 1. Modificamos la desestructuración para capturar tanto el estado como el hash devuelto por el repositorio
       const { newWeb2Status, tx_hash } = await ElectionRepository.submitRevealVote(
         election.id, 
         election.chain_election_id!, 
@@ -156,7 +149,6 @@ export default function ElectionDetail() {
         userSalt
       )
       
-      // 2. Aplicamos el truco del confirm nativo para abrir Etherscan
       if (tx_hash) {
         const quiereVerEtherscan = window.confirm(
           "🔓 ¡Voto revelado y contabilizado en la Blockchain!\n\n" +
@@ -170,7 +162,6 @@ export default function ElectionDetail() {
         alert('🔓 ¡Voto revelado y contabilizado en la Blockchain!!');
       }
       
-      // 3. Actualizamos los estados locales de la interfaz
       setHasRevealed(true)
       setElection(prev => prev ? { ...prev, status: newWeb2Status } : null)
       await loadElectionData(currentUserId)

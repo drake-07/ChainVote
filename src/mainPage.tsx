@@ -99,7 +99,6 @@ export default function Home({
       const userId = userData.user?.id || null
       setCurrentUserId(userId)
 
-      // Consumo del Repositorio para poblar la vista del ecosistema electoral
       const repoResult = await ElectionRepository.getElectionsData(userId)
       
       setIsAdminUser(repoResult.isAdminUser)
@@ -117,7 +116,6 @@ export default function Home({
       const { data: userData } = await supabase.auth.getUser()
       const currentUserId = userData.user?.id || null
       
-      // Consumo del Repositorio para la lista de usuarios
       const availableUsers = await ElectionRepository.getAllUsers(currentUserId)
       setUsers(availableUsers)
     } catch (error) {
@@ -151,9 +149,7 @@ export default function Home({
   const addOption = () => setNewOptions(prev => [...prev, ''])
   const removeOption = (index: number) => setNewOptions(prev => prev.filter((_, i) => i !== index))
 
-  // ==========================================
-  // 🗳️ CREACIÓN SECUENCIAL (WEB3 -> WEB2)
-  // ==========================================
+  
   const handleCreateElection = async () => {
     if (!newTitle) { alert('Introduce al menos el título'); return; }
     const validOptions = newOptions.filter(opt => opt.trim() !== '')
@@ -164,12 +160,10 @@ export default function Home({
       const { data: userData } = await supabase.auth.getUser()
       if (!userData.user) { alert('No se pudo obtener el usuario'); return; }
 
-      // 1. Escritura en Blockchain usando la Fachada de Repositorio (v5)
-      // Devuelve de golpe tanto el ID real de la blockchain como el hash minado
+      
       const { chainElectionId, txHash } = await ElectionRepository.createElectionOnChain(newTitle, validOptions)
 
-      // 2. Transacción distribuida unificada Web2 en Repositorio
-      // Inyectamos el hash de creación directamente para insertarlo en Supabase de golpe
+      
       await ElectionRepository.persistNewElection({
         title: newTitle,
         description: newDescription,
@@ -178,7 +172,7 @@ export default function Home({
         chainElectionId,
         selectedUserIds,
         validOptions,
-        txHashCreate: txHash // Transmitimos el hash de creación
+        txHashCreate: txHash 
       })
       if (txHash) {
         const quiereVerEtherscan = window.confirm(
@@ -209,7 +203,7 @@ export default function Home({
     const confirmDelete = confirm('¿Seguro que quieres eliminar esta elección?')
     if (!confirmDelete) return
     try {
-      // Consumo del Repositorio para borrado con RLS implícito
+     
       await ElectionRepository.removeElection(electionId)
       alert('🗑️ Elección eliminada')
       fetchData()

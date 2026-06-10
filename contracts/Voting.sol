@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 contract Voting {
-    // 🌟 NUEVO: Estados manuales para controlar la demo paso a paso
     enum WorkflowStatus { RegisteringVoters, CommitPhase, RevealPhase, Finished }
 
     struct Election {
@@ -10,7 +9,7 @@ contract Voting {
         string[] candidates;
         address creator;
         uint[] votes;
-        WorkflowStatus status;  // 🌟 El estado actual de la votación
+        WorkflowStatus status;  
         uint totalCommits;      
         uint revealedCount;     
         mapping(address => bytes32) commits;     
@@ -27,7 +26,6 @@ contract Voting {
     event VoteRevealed(uint indexed electionId, address indexed voter, uint optionIndex);
     event ElectionClosed(uint indexed electionId, address indexed closer);
 
-    // 1. Crear la elección (Ya no pide fechas, arranca por defecto en Fase de Registro/Censo)
     function createElection(string memory _title, string[] memory _candidates) public {
         require(_candidates.length > 1, "Se necesitan al menos dos candidatos");
 
@@ -42,7 +40,6 @@ contract Voting {
         electionCount++;
     }
 
-    // 🌟 NUEVA FUNCIÓN: Permite al Admin cambiar de fase manualmente en la Demo
     function advanceWorkflowStatus(uint _electionId) public {
         Election storage election = elections[_electionId];
         require(msg.sender == election.creator, "Solo el admin cambia de fase");
@@ -58,7 +55,6 @@ contract Voting {
         }
     }
 
-    // 2. FASE 1: COMMIT (Solo funciona si el Admin activó la fase 'CommitPhase')
     function vote(uint _electionId, bytes32 _commitHash) public {
         Election storage election = elections[_electionId];
 
@@ -72,7 +68,6 @@ contract Voting {
         emit VoteCommitted(_electionId, msg.sender);
     }
 
-    // 3. FASE 2: REVEAL INDIVIDUAL (Solo funciona si el Admin activó la fase 'RevealPhase')
     function revealVote(uint _electionId, uint _candidateIndex, string memory _salt) public {
     Election storage election = elections[_electionId];
 
@@ -80,13 +75,12 @@ contract Voting {
     require(election.hasVoted[msg.sender], "No has registrado ningun voto");
     require(!election.hasRevealed[msg.sender], "Ya has revelado tu voto");
     
-    // 🟢 AÑADE ESTA LÍNEA DE SEGURIDAD AQUÍ:
     require(_candidateIndex < election.candidates.length, "ERROR CRITICO: El indice del candidato se sale del array de la Blockchain");
 
     bytes32 expectedCommit = keccak256(abi.encodePacked(_candidateIndex, _salt));
     require(expectedCommit == election.commits[msg.sender], "El voto o el secreto no coinciden");
 
-    election.votes[_candidateIndex]++; // 🔥 Ahora esta línea está 100% protegida
+    election.votes[_candidateIndex]++; 
     election.revealedCount++;
     election.hasRevealed[msg.sender] = true;
 
@@ -98,7 +92,6 @@ contract Voting {
     }
 }
 
-    // --- GETTERS MANTENIDOS ---
     function getResults(uint _electionId) public view returns (uint[] memory) {
         return elections[_electionId].votes;
     }
@@ -119,12 +112,10 @@ contract Voting {
         return elections[_electionId].hasRevealed[_user];
     }
 
-    // Devuelve el número de estado actual (0=Registro, 1=Commit, 2=Reveal, 3=Finished)
     function getWorkflowStatus(uint _electionId) public view returns (uint) {
         return uint(elections[_electionId].status);
     }
 
-    // 🟢 Añade esto al final de tu Voting.sol para solucionar el error de React
 function getElectionDetails(uint _electionId) public view returns (
     uint totalCommits, 
     uint revealedCount

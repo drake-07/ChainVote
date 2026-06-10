@@ -3,10 +3,8 @@ import { ethers } from 'ethers'
 import contractABI from '../artifacts/contracts/Voting.sol/Voting.json'
 import contractAddress from './contracts/contract-address.json';
 
-// 3. ¡Y listo! Ya tienes la dirección mapeada dinámicamente
 const CONTRACT_ADDRESS = contractAddress.Voting;
 
-// Tipados globales del dominio
 export type Option = { id: string; election_id: string; option: string }
 export type User = { id: string; username?: string; name?: string; surname?: string }
 export type Election = {
@@ -33,9 +31,7 @@ export type Result = { candidate: string; votes: number }
 
 export const ElectionRepository = {
   
-  // ==========================================
-  // 🔗 1. CONEXIÓN BLOCKCHAIN INTERNA (v5)
-  // ==========================================
+
   async getContract(signer?: any) {
     if (!(window as any).ethereum) throw new Error('MetaMask no está instalado')
     await (window as any).ethereum.request({ method: 'eth_requestAccounts' })
@@ -45,9 +41,7 @@ export const ElectionRepository = {
     return new ethers.Contract(CONTRACT_ADDRESS, contractABI.abi, activeSigner)
   },
 
-  // ==========================================
-  // 🏠 2. MÉTODOS DE LA PÁGINA PRINCIPAL (Home)
-  // ==========================================
+ 
   async createElectionOnChain(title: string, candidates: string[]): Promise<{ chainElectionId: number; txHash: string }> {
     const contract = await this.getContract()
     const tx = await contract.createElection(title, candidates)
@@ -64,7 +58,7 @@ export const ElectionRepository = {
 
     return {
       chainElectionId,
-      txHash: tx.hash // Captura del hash transaccional original v5
+      txHash: tx.hash 
     }
   },
 
@@ -123,7 +117,7 @@ export const ElectionRepository = {
     chainElectionId: number; 
     selectedUserIds: string[]; 
     validOptions: string[];
-    txHashCreate: string // Parámetro inyectado atómicamente
+    txHashCreate: string 
   }): Promise<void> {
     const { data, error } = await supabase.from('elections').insert({
         title: payload.title, 
@@ -132,7 +126,7 @@ export const ElectionRepository = {
         status: 'inactive', 
         admin_id: payload.adminId, 
         chain_election_id: payload.chainElectionId,
-        tx_hash_create: payload.txHashCreate // Inserción limpia de golpe en Supabase
+        tx_hash_create: payload.txHashCreate 
     }).select('id').single()
     if (error || !data) throw error
 
@@ -148,9 +142,7 @@ export const ElectionRepository = {
     if (error) throw error
   },
 
-  // ==========================================
-  // 🗳️ 3. MÉTODOS DEL DETALLE DE ELECCIÓN 
-  // ==========================================
+ 
   
   async getSingleElectionDetails(electionId: string, userId: string | null) {
     const { data, error } = await supabase.from('elections').select('*').eq('id', electionId).single()
@@ -216,7 +208,6 @@ export const ElectionRepository = {
     const tx = await contract.vote(chainElectionId, commitHash)
     await tx.wait() // Espera secuencial del bloque
 
-    // 2. Persistencia del secreto + HASH COMMIT en Web2
     const { error } = await supabase.from('user_election').update({ 
       vote: true, 
       salt: salt, 
@@ -230,12 +221,11 @@ export const ElectionRepository = {
   },
 
   async submitRevealVote(electionId: string, chainElectionId: number, userId: string, optionIndex: number, salt: string) {
-    // 1. Descifrado en Web3
+
     const contract = await this.getContract()
     const tx = await contract.revealVote(chainElectionId, optionIndex, salt)
-    await tx.wait() // Espera secuencial del bloque
+    await tx.wait() 
 
-    // 2. Sincronización de estado Web3 -> Web2 + HASH REVEAL
     const isStillActive = await contract.isActive(chainElectionId)
     const newWeb2Status = !isStillActive ? 'finished' : 'reveal'
 
